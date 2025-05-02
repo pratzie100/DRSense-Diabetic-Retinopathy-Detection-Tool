@@ -1,0 +1,10 @@
+flask==2.3.3
+tensorflow==2.19.0
+numpy==1.26.4
+opencv-python==4.6.0.66
+pillow==9.3.0
+python-dotenv==1.0.0
+langchain==0.3.23
+langchain-groq==0.3.2
+flask-cors==4.0.0
+gunicorn==23.0.0

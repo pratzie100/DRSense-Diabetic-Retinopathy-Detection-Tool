@@ -1,0 +1,6 @@
+.env
+.ipynb_checkpoints/
+X_train_preprocessed.npy
+X_val_preprocessed.npy
+densenet_fundus_clahe_final.h5
+train_images/
