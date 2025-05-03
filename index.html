@@ -203,179 +203,202 @@
         <a href="https://www.linkedin.com/in/pratyush-kargeti-576270285" target="_blank" style="color:#60a5fa;">LinkedIn</a>
     </footer>
 
-    <script>
-        const BACKEND_URL = '/'; // Placeholder, update to Render URL after deployment
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const preview = document.getElementById('preview');
-        const preprocessedPreview = document.getElementById('preprocessedPreview');
-        const preprocessedLabel = document.getElementById('preprocessedLabel');
-        const originalLabel = document.getElementById('originalLabel');
-        const fileName = document.getElementById('fileName');
-        const submitButton = document.getElementById('submitButton');
-        const spinner = document.getElementById('spinner');
-        const statusMessage = document.getElementById('statusMessage');
-        const predictionResult = document.getElementById('predictionResult');
-        const llmAdvice = document.getElementById('llmAdvice');
-        const downloadButton = document.getElementById('downloadButton');
-
-        // Handle drag and drop
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
-            }
-        });
-
-        fileInput.addEventListener('change', handleFileSelect);
-
-        function handleFileSelect() {
-            const file = fileInput.files[0];
-            if (file && file.type.match('image.*')) {
-                fileName.textContent = file.name; // Store file name, don't display yet
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block'; // Show original image
-                    originalLabel.style.display = 'block'; // Show original label
-                    submitButton.classList.remove('hidden'); // Show submit button
-                    fileName.style.display = 'none'; // Keep file name hidden
-                    preprocessedPreview.style.display = 'none'; // Ensure preprocessed image is hidden
-                    preprocessedLabel.style.display = 'none'; // Ensure preprocessed label is hidden
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert('Please select a valid image file.');
-            }
-        }
-
-        submitButton.addEventListener('click', () => {
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('No image selected.');
-                return;
-            }
-            analyzeImage(file);
-        });
-
-        async function analyzeImage(file) {
-            // Show file name and spinner after submit
-            fileName.style.display = 'block';
-            spinner.classList.add('show');
-            submitButton.classList.add('hidden');
-            predictionResult.classList.add('hidden');
-            llmAdvice.innerHTML = '';
-            downloadButton.classList.add('hidden');
-
-            // Status updates
-            const statusMessages = [
-                'Analyzing image...',
-                'Preprocessing completed...',
-                'Feeding to model...',
-                'Fetching recommendations...'
-            ];
-            let statusIndex = 0;
-            statusMessage.textContent = statusMessages[statusIndex];
-            const statusInterval = setInterval(() => {
-                statusIndex = (statusIndex + 1) % statusMessages.length;
-                statusMessage.textContent = statusMessages[statusIndex];
-            }, 2000);
-
-            try {
-                // Get preprocessed image
-                const preprocessFormData = new FormData();
-                preprocessFormData.append('file', file);
-                // const preprocessResponse = await fetch('/preprocess', {
-                const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
-                    method: 'POST',
-                    body: preprocessFormData
-                });
-                const preprocessData = await preprocessResponse.json();
-                if (preprocessData.error) {
-                    throw new Error(preprocessData.error);
+    
+        <script>
+            const BACKEND_URL = '/'; // Update to Render URL after deployment
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const preprocessedPreview = document.getElementById('preprocessedPreview');
+            const preprocessedLabel = document.getElementById('preprocessedLabel');
+            const originalLabel = document.getElementById('originalLabel');
+            const fileName = document.getElementById('fileName');
+            const submitButton = document.getElementById('submitButton');
+            const spinner = document.getElementById('spinner');
+            const statusMessage = document.getElementById('statusMessage');
+            const predictionResult = document.getElementById('predictionResult');
+            const llmAdvice = document.getElementById('llmAdvice');
+            const downloadButton = document.getElementById('downloadButton');
+            
+            // Handle drag and drop
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect();
                 }
-                preprocessedPreview.src = preprocessData.preprocessed_image;
-                preprocessedPreview.style.display = 'block';
-                preprocessedLabel.style.display = 'block';
-
-                // Predict
-                const predictFormData = new FormData();
-                predictFormData.append('file', file);
-                // const predictResponse = await fetch('/predict', {
-                const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
-                    method: 'POST',
-                    body: predictFormData
-                });
-                const data = await predictResponse.json();
-                clearInterval(statusInterval);
-                spinner.classList.remove('show');
-
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                    submitButton.classList.remove('hidden');
+            });
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            function handleFileSelect() {
+                const file = fileInput.files[0];
+                if (file && file.type.match('image.*')) {
+                    fileName.textContent = file.name;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        originalLabel.style.display = 'block';
+                        submitButton.classList.remove('hidden');
+                        fileName.style.display = 'none';
+                        preprocessedPreview.style.display = 'none';
+                        preprocessedLabel.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select a valid image file.');
+                }
+            }
+            
+            submitButton.addEventListener('click', () => {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('No image selected.');
                     return;
                 }
-
-                // Display results
-                const levels = [
-                    "No DR",
-                    "Mild DR",
-                    "Moderate DR",
-                    "Severe DR",
-                    "Proliferative DR"
+                analyzeImage(file);
+            });
+            
+            async function analyzeImage(file) {
+                fileName.style.display = 'block';
+                spinner.classList.add('show');
+                submitButton.classList.add('hidden');
+                predictionResult.classList.add('hidden');
+                llmAdvice.innerHTML = '';
+                downloadButton.classList.add('hidden');
+            
+                const statusMessages = [
+                    'Analyzing image...',
+                    'Preprocessing completed...',
+                    'Feeding to model...',
+                    'Fetching recommendations...'
                 ];
-                predictionResult.textContent = `Diagnosis: ${levels[data.prediction]} (Level ${data.prediction})`;
-                predictionResult.className = `result-card level-${data.prediction}`;
-                predictionResult.classList.remove('hidden');
-
-                llmAdvice.innerHTML = marked.parse(data.advice);
-                downloadButton.classList.remove('hidden');
-
-                // Download report
-                downloadButton.onclick = async () => {
-                    const reportData = {
-                        original_image: data.original_image,
-                        preprocessed_image: data.preprocessed_image,
-                        prediction: data.prediction,
-                        advice: data.advice,
-                        filename: data.filename
-                    };
-                    // const response = await fetch('/generate_report', {
-                    const response = await fetch(`${BACKEND_URL}/generate_report`, {
+                let statusIndex = 0;
+                statusMessage.textContent = statusMessages[statusIndex];
+                const statusInterval = setInterval(() => {
+                    statusIndex = (statusIndex + 1) % statusMessages.length;
+                    statusMessage.textContent = statusMessages[statusIndex];
+                }, 2000);
+            
+                try {
+                    const preprocessFormData = new FormData();
+                    preprocessFormData.append('file', file);
+                    // const preprocessResponse = await fetch('/preprocess', {
+                    const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(reportData)
+                        body: preprocessFormData
                     });
-                    if (!response.ok) {
-                        throw new Error('Failed to generate report');
+                    const preprocessData = await preprocessResponse.json();
+                    if (preprocessData.error) {
+                        throw new Error(preprocessData.error);
                     }
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = data.filename;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                };
-            } catch (error) {
-                clearInterval(statusInterval);
-                spinner.classList.remove('show');
-                submitButton.classList.remove('hidden');
-                console.error('Error:', error);
-                alert('An error occurred during analysis: ' + error.message);
+                    preprocessedPreview.src = preprocessData.preprocessed_image;
+                    preprocessedPreview.style.display = 'block';
+                    preprocessedLabel.style.display = 'block';
+            
+                    const predictFormData = new FormData();
+                    predictFormData.append('file', file);
+                    // const predictResponse = await fetch('/predict', {
+                    const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
+                        method: 'POST',
+                        body: predictFormData
+                    });
+                    const data = await predictResponse.json();
+                    clearInterval(statusInterval);
+                    spinner.classList.remove('show');
+            
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        submitButton.classList.remove('hidden');
+                        return;
+                    }
+            
+                    const levels = [
+                        "No DR",
+                        "Mild DR",
+                        "Moderate DR",
+                        "Severe DR",
+                        "Proliferative DR"
+                    ];
+                    predictionResult.textContent = `Diagnosis: ${levels[data.prediction]} (Level ${data.prediction})`;
+                    predictionResult.className = `result-card level-${data.prediction}`;
+                    predictionResult.classList.remove('hidden');
+            
+                    llmAdvice.innerHTML = marked.parse(data.advice);
+                    downloadButton.classList.remove('hidden');
+            
+                    downloadButton.onclick = async () => {
+                        try {
+                            const reportData = {
+                                original_image: data.original_image,
+                                preprocessed_image: data.preprocessed_image,
+                                prediction: data.prediction,
+                                advice: data.advice,
+                                filename: data.filename
+                            };
+                            // Retry fetch up to 3 times
+                            let attempts = 0;
+                            const maxAttempts = 3;
+                            while (attempts < maxAttempts) {
+                                attempts++;
+                                try {
+                                    const controller = new AbortController();
+                                    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+                                    // const response = await fetch('/generate_report', {
+                                    const response = await fetch(`${BACKEND_URL}/generate_report`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(reportData),
+                                        signal: controller.signal
+                                    });
+                                    clearTimeout(timeoutId);
+                                    if (!response.ok) {
+                                        const errorData = await response.json();
+                                        throw new Error(errorData.error || 'Failed to generate report');
+                                    }
+                                    const blob = await response.blob();
+                                    console.log('Attempt', attempts, 'Blob size:', blob.size);
+                                    if (blob.size < 1000) {
+                                        throw new Error('Received empty or invalid PDF file');
+                                    }
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = data.filename;
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                    return; // Success, exit
+                                } catch (error) {
+                                    if (attempts === maxAttempts) {
+                                        throw error; // Final attempt failed
+                                    }
+                                    console.log('Retry attempt', attempts + 1, 'after error:', error);
+                                    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Download error:', error);
+                            alert('Could not download PDF: ' + (error.message || 'Network error'));
+                        }
+                    };
+                } catch (error) {
+                    clearInterval(statusInterval);
+                    spinner.classList.remove('show');
+                    submitButton.classList.remove('hidden');
+                    alert('Analysis failed: ' + error.message);
+                }
             }
-        }
-    </script>
+        </script>
 </body>
 </html>
