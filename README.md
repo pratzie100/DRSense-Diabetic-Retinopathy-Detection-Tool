@@ -51,7 +51,7 @@
 
 **DRSense** is a web-based tool for detecting diabetic retinopathy (DR) from fundus images using deep learning and large language model (LLM)-powered recommendations. Built with Flask, TensorFlow, and Groq, it leverages applied machine learning, deep learning, and transfer learning to provide healthcare professionals with immediate, actionable insights for DR diagnosis and management.
 
-> ⚠️ **Note**: Deployment to Netlify, Vercel, and Render is currently pending. This project is under active development.
+> **Note**: Deployment to Netlify, Vercel, and Render is currently pending. This project is under active development.
 
 - **Frontend**: Static `index.html` (planned for Netlify/Vercel).
 - **Backend**: Flask API with TensorFlow model (planned for Render).
