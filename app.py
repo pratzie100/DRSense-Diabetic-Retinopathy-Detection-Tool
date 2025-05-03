@@ -88,13 +88,13 @@ def preprocess_image(image_file, return_image=False):
         logging.error(f"Error in preprocess_image: {str(e)}")
         raise
 
-@app.route('/')
-def serve_index():
-    return send_from_directory('.', 'index.html')
-
 # @app.route('/')
-# def home():
-#     return jsonify({'message': 'DRSense API is up and running!!'})
+# def serve_index():
+#     return send_from_directory('.', 'index.html')
+
+@app.route('/')
+def home():
+    return jsonify({'message': 'DRSense API is up and running!!'})
 
 @app.route('/<path:filename>')
 def serve_static(filename):

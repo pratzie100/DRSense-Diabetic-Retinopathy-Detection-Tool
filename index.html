@@ -204,7 +204,7 @@
     </footer>
 
     <script>
-        // const BACKEND_URL = '/'; // Placeholder, update to Render URL after deployment
+        const BACKEND_URL = '/'; // Placeholder, update to Render URL after deployment
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const preview = document.getElementById('preview');
@@ -296,8 +296,8 @@
                 // Get preprocessed image
                 const preprocessFormData = new FormData();
                 preprocessFormData.append('file', file);
-                const preprocessResponse = await fetch('/preprocess', {
-                // const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
+                // const preprocessResponse = await fetch('/preprocess', {
+                const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
                     method: 'POST',
                     body: preprocessFormData
                 });
@@ -312,8 +312,8 @@
                 // Predict
                 const predictFormData = new FormData();
                 predictFormData.append('file', file);
-                const predictResponse = await fetch('/predict', {
-                // const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
+                // const predictResponse = await fetch('/predict', {
+                const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
                     method: 'POST',
                     body: predictFormData
                 });
@@ -351,8 +351,8 @@
                         advice: data.advice,
                         filename: data.filename
                     };
-                    const response = await fetch('/generate_report', {
-                    // const response = await fetch(`${BACKEND_URL}/generate_report`, {
+                    // const response = await fetch('/generate_report', {
+                    const response = await fetch(`${BACKEND_URL}/generate_report`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(reportData)
