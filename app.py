@@ -591,7 +591,19 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://drsense-pratyush-kargeti.netlify.app/"}})  # Netlify frontend URL
+# CORS(app, resources={r"/*": {"origins": "https://drsense-pratyush-kargeti.netlify.app/"}})  # Netlify frontend URL
+# Allow CORS for the Netlify frontend, including preflight requests
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://drsense-pratyush-kargeti.netlify.app",
+            "http://localhost:5000"  # Optional: for local development
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": False
+    }
+})
 
 # Load model
 MODEL_PATH = 'densenet_fundus_clahe_final.h5'
@@ -839,5 +851,9 @@ def generate_report():
         logging.error(f"Error generating report: {str(e)}")
         return jsonify({'error': 'Report generation failed'}), 500
 
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5000, debug=False)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
