@@ -591,7 +591,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://drsense-pratyush-kargeti.netlify.app/"}})  # Netlify frontend URL
 
 # Load model
 MODEL_PATH = 'densenet_fundus_clahe_final.h5'
