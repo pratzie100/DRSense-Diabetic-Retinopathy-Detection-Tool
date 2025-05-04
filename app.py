@@ -31,7 +31,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app)
+# CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://drsense-pratyush-kargeti.netlify.app"}})
 # CORS(app, resources={r"/*": {"origins": "https://drsense-pratyush-kargeti.netlify.app/"}})  # Netlify frontend URL
 
 
