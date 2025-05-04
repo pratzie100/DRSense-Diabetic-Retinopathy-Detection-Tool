@@ -864,7 +864,6 @@
 #     app.run(host='0.0.0.0', port=port, debug=False)
 
 
-
 import os
 import logging
 import base64
@@ -1035,27 +1034,36 @@ def predict():
         # Model prediction
         file.seek(0)
         processed_img = preprocess_image(file)
+        start_inference = time.time()
         pred_probs = model.predict(processed_img)
+        logging.info(f"Model inference took {time.time() - start_inference} seconds")
         pred_class = int(np.argmax(pred_probs, axis=1)[0])
         logging.info(f"Prediction: DR Level {pred_class}")
         
         # Groq advice
-        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        prompt = f"""
-        For a patient diagnosed with diabetic retinopathy (DR) level {pred_class}, provide immediate, concise, and actionable recommendations for healthcare professionals, as an expert ophthalmologist would in a hospital setting. Use the following guidelines for each level:
-        - Level 0 (No DR): No immediate action; routine monitoring.
-        - Level 1 (Mild DR): Refer to ophthalmologist within 6-12 months; control blood sugar.
-        - Level 2 (Moderate DR): Urgent referral to retina specialist within 1-3 months; fundus photography.
-        - Level 3 (Severe DR): Immediate referral to retina specialist (within weeks); consider laser or anti-VEGF.
-        - Level 4 (Proliferative DR): Emergency referral to retina specialist (within days); urgent laser or surgery.
-        Provide 3-5 bullet points, ensuring clarity and hospital-grade precision. Format as Markdown, including headers and bold text as needed.
-        Instruction to remember: Do not use alternative markdown syntax (e.g., `====` or `----` underlines).
-        """
-        llm_response = groq_client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama3-8b-8192"
-        )
-        advice = llm_response.choices[0].message.content
+        start_groq = time.time()
+        try:
+            groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+            prompt = f"""
+            For a patient diagnosed with diabetic retinopathy (DR) level {pred_class}, provide immediate, concise, and actionable recommendations for healthcare professionals, as an expert ophthalmologist would in a hospital setting. Use the following guidelines for each level:
+            - Level 0 (No DR): No immediate action; routine monitoring.
+            - Level 1 (Mild DR): Refer to ophthalmologist within 6-12 months; control blood sugar.
+            - Level 2 (Moderate DR): Urgent referral to retina specialist within 1-3 months; fundus photography.
+            - Level 3 (Severe DR): Immediate referral to retina specialist (within weeks); consider laser or anti-VEGF.
+            - Level 4 (Proliferative DR): Emergency referral to retina specialist (within days); urgent laser or surgery.
+            Provide 3-5 bullet points, ensuring clarity and hospital-grade precision. Format as Markdown, including headers and bold text as needed.
+            Instruction to remember: Do not use alternative markdown syntax (e.g., `====` or `----` underlines).
+            """
+            llm_response = groq_client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama3-8b-8192",
+                timeout=10
+            )
+            advice = llm_response.choices[0].message.content
+            logging.info(f"Groq API call took {time.time() - start_groq} seconds")
+        except Exception as e:
+            logging.error(f"Groq API failed: {str(e)}")
+            advice = f"Failed to fetch recommendations for DR Level {pred_class}. Please consult a retina specialist."
         
         response = jsonify({
             'prediction': pred_class,
@@ -1085,7 +1093,6 @@ def generate_report():
     response = None
     try:
         data = request.json
-        # Validate required keys
         required_keys = ['original_image', 'preprocessed_image', 'prediction', 'advice', 'filename']
         for key in required_keys:
             if key not in data:
@@ -1093,7 +1100,6 @@ def generate_report():
                 response.status_code = 400
                 return response
         
-        # Decode base64 images, resize, and save to disk
         def decode_and_save_image(base64_str, prefix):
             if ',' in base64_str:
                 base64_str = base64_str.split(',')[1]
@@ -1103,19 +1109,17 @@ def generate_report():
                 response = jsonify({'error': f'Failed to decode {prefix} image'})
                 response.status_code = 400
                 return response
-            # Resize to 300x225 (matches PDF display size, reduces file size)
             img = cv2.resize(img, (300, 225))
             with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                # Save with compression
                 cv2.imwrite(tmp.name, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
                 logging.info(f"Saved {prefix} image to {tmp.name}")
                 return tmp.name
 
         original_path = decode_and_save_image(data['original_image'], "original")
-        if isinstance(original_path, tuple):  # Handle error response
+        if isinstance(original_path, tuple):
             return original_path
         preprocessed_path = decode_and_save_image(data['preprocessed_image'], "preprocessed")
-        if isinstance(preprocessed_path, tuple):  # Handle error response
+        if isinstance(preprocessed_path, tuple):
             return preprocessed_path
         prediction = data['prediction']
         advice = data['advice']
@@ -1125,35 +1129,29 @@ def generate_report():
         pdf = canvas.Canvas(buffer, pagesize=letter)
         pdf.setTitle("DRSense Report")
         
-        # Styles
         styles = {
             'h2': ParagraphStyle(name='h2', fontName='Helvetica-Bold', fontSize=14, leading=16, spaceAfter=10),
             'normal': ParagraphStyle(name='normal', fontName='Helvetica', fontSize=10, leading=12, spaceAfter=6),
             'bullet': ParagraphStyle(name='bullet', fontName='Helvetica', fontSize=10, leading=12, leftIndent=20, firstLineIndent=-10, spaceAfter=6)
         }
         
-        # Header
         pdf.setFont("Helvetica-Bold", 14)
         pdf.drawString(50, 750, "DRSense - Diabetic Retinopathy Report")
         pdf.setFont("Helvetica", 10)
         pdf.drawString(50, 730, "Generated by DRSense AI Tool")
         
-        # Images
         pdf.drawString(50, 700, "Original Fundus Image:")
         pdf.drawImage(original_path, 50, 600, width=150, height=112.5)
         
         pdf.drawString(50, 570, "Preprocessed Fundus Image:")
         pdf.drawImage(preprocessed_path, 50, 470, width=150, height=112.5)
         
-        # Prediction
         levels = ["No DR", "Mild DR", "Moderate DR", "Severe DR", "Proliferative DR"]
         pdf.drawString(50, 450, f"Diagnosis: {levels[prediction]} (Level {prediction})")
         
-        # Recommended Actions
         pdf.drawString(50, 430, "Recommended Actions:")
         y = 410
         
-        # Parse Markdown
         html = markdown.markdown(advice, extensions=['extra'])
         soup = BeautifulSoup(html, 'html.parser')
         
@@ -1197,11 +1195,9 @@ def generate_report():
         pdf.save()
         buffer.seek(0)
         
-        # Log PDF size
         pdf_size = buffer.getbuffer().nbytes
         logging.info(f"Generated PDF size: {pdf_size} bytes")
         
-        # Clean up temp files
         os.remove(original_path)
         os.remove(preprocessed_path)
         
@@ -1225,5 +1221,5 @@ def generate_report():
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))  # Match Render's detected port
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
