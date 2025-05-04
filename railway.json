@@ -5,10 +5,10 @@
         "providers": ["python"],
         "phases": {
           "setup": {
-            "pkgs": ["python310", "pip"]
+            "pkgs": ["python39", "python39Packages.pip", "gcc"]
           },
           "install": {
-            "cmds": ["pip install -r requirements.txt"]
+            "cmds": ["pip install --no-cache-dir -r requirements.txt"]
           },
           "build": {
             "cmds": []
