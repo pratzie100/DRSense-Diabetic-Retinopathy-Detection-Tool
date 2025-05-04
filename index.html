@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -157,7 +157,7 @@
         <h1 class="text-4xl font-bold text-center text-white mb-6 drop-shadow-lg">DRSense - Diabetic Retinopathy Detection Tool</h1>
         <p class="text-center text-gray-200 mb-8">Upload a fundus image for LLM-powered, deep learning–based DR analysis.</p>
         <div class="grid grid-cols-2 gap-6">
-            <!-- Left Section: Input -->
+            
             <div class="card">
                 <h2 class="text-2xl font-semibold text-gray-700 mb-4">Upload Fundus Image</h2>
                 <div class="upload-area" id="dropZone">
@@ -185,7 +185,7 @@
                 </div>
             </div>
 
-            <!-- Right Section: Output (Unchanged) -->
+            Right Section: Output (Unchanged)
             <div class="card">
                 <h2 class="text-2xl font-semibold text-gray-700 mb-4">Diagnosis</h2>
                 <div id="predictionResult" class="result-card hidden"></div>
@@ -400,5 +400,454 @@
                 }
             }
         </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRSense</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        #preview, #preprocessedPreview {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            display: none;
+            border: 1px solid #e2e8f0;
+        }
+        .image-section {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .image-container {
+            text-align: center;
+        }
+        .image-label {
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        .spinner-container {
+            display: none;
+            text-align: center;
+            margin-top: 1.5rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .spinner-container.show {
+            display: block !important;
+        }
+        .status-message {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-top: 0.5rem;
+        }
+        .result-card {
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .level-0 { background: #d4edda; color: #155724; }
+        .level-1 { background: #fff3cd; color: #856404; }
+        .level-2 { background: #ffeeba; color: #856404; }
+        .level-3 { background: #f8d7da; color: #721c24; }
+        .level-4 { background: #f5c6cb; color: #721c24; }
+        .spinner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .spinner.show {
+            display: flex !important;
+        }
+        .markdown-content {
+            line-height: 1.6;
+            font-size: 1rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .markdown-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        .markdown-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+        }
+        .markdown-content ul li strong {
+            font-weight: 600;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #1e293b;
+            color: white;
+            margin-top: auto;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                min-height: auto;
+            }
+            .image-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-bold text-center text-white mb-6 drop-shadow-lg">DRSense - Diabetic Retinopathy Detection Tool</h1>
+        <p class="text-center text-gray-200 mb-8">Upload a fundus image for LLM-powered, deep learning–based DR analysis.</p>
+        <div class="grid grid-cols-2 gap-6">
+            <!-- Left Section: Input -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Upload Fundus Image</h2>
+                <div class="upload-area" id="dropZone">
+                    <p class="text-gray-500">Drag & drop an image or click to select</p>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">Select Image</button>
+                </div>
+                <p id="fileName" class="text-gray-600 mt-2 text-center" style="display: none;"></p>
+                <div class="image-section">
+                    <div class="image-container">
+                        <img id="preview" alt="Original image preview">
+                        <p class="image-label" id="originalLabel" style="display: none;">Uploaded Image</p>
+                    </div>
+                    <div class="image-container">
+                        <img id="preprocessedPreview" alt="Preprocessed image preview">
+                        <p id="preprocessedLabel" class="image-label" style="display: none;">Preprocessed Image</p>
+                    </div>
+                </div>
+                <button id="submitButton" class="mt-4 w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition hidden">Submit</button>
+                <div class="spinner-container" id="spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p id="statusMessage" class="status-message">Analyzing image...</p>
+                </div>
+            </div>
+
+            <!-- Right Section: Output -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Diagnosis</h2>
+                <div id="predictionResult" class="result-card hidden"></div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Recommended Actions</h3>
+                <div id="llmAdvice" class="markdown-content"></div>
+                <button id="downloadButton" class="mt-4 w-full bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition hidden">Download Report</button>
+                <p class="text-sm text-gray-500 mt-4">Disclaimer: This tool is for informational purposes only. Consult a healthcare professional for medical advice.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p style="display:inline;">Made with ❤️ by Pratyush Kargeti</p> | 
+        <a href="https://github.com/pratzie100" target="_blank" style="color:#60a5fa;">GitHub</a> • 
+        <a href="https://www.linkedin.com/in/pratyush-kargeti-576270285" target="_blank" style="color:#60a5fa;">LinkedIn</a>
+    </footer>
+
+    <script>
+        const BACKEND_URL = 'https://drsense-diabetic-retinopathy-detection.onrender.com';
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const preprocessedPreview = document.getElementById('preprocessedPreview');
+        const preprocessedLabel = document.getElementById('preprocessedLabel');
+        const originalLabel = document.getElementById('originalLabel');
+        const fileName = document.getElementById('fileName');
+        const submitButton = document.getElementById('submitButton');
+        const spinner = document.getElementById('spinner');
+        const statusMessage = document.getElementById('statusMessage');
+        const predictionResult = document.getElementById('predictionResult');
+        const llmAdvice = document.getElementById('llmAdvice');
+        const downloadButton = document.getElementById('downloadButton');
+
+        // Handle drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function resizeImage(file, maxSize, callback) {
+            const img = new Image();
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width *= maxSize / height;
+                            height = maxSize;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(callback, 'image/jpeg', 0.7); // 70% quality JPEG
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file && file.type.match('image.*')) {
+                fileName.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    originalLabel.style.display = 'block';
+                    submitButton.classList.remove('hidden');
+                    fileName.style.display = 'none';
+                    preprocessedPreview.style.display = 'none';
+                    preprocessedLabel.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a valid image file.');
+            }
+        }
+
+        submitButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('No image selected.');
+                return;
+            }
+            analyzeImage(file);
+        });
+
+        async function analyzeImage(file) {
+            fileName.style.display = 'block';
+            spinner.classList.add('show');
+            submitButton.classList.add('hidden');
+            predictionResult.classList.add('hidden');
+            llmAdvice.innerHTML = '';
+            downloadButton.classList.add('hidden');
+
+            const statusMessages = [
+                'Analyzing image...',
+                'Preprocessing completed...',
+                'Feeding to model...',
+                'Fetching recommendations...'
+            ];
+            let statusIndex = 0;
+            statusMessage.textContent = statusMessages[statusIndex];
+            const statusInterval = setInterval(() => {
+                statusIndex = (statusIndex + 1) % statusMessages.length;
+                statusMessage.textContent = statusMessages[statusIndex];
+            }, 2000);
+
+            try {
+                // Resize image to max 512px
+                resizeImage(file, 512, async (resizedBlob) => {
+                    const preprocessFormData = new FormData();
+                    preprocessFormData.append('file', resizedBlob, 'image.jpg');
+                    try {
+                        const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
+                            method: 'POST',
+                            body: preprocessFormData
+                        });
+                        if (!preprocessResponse.ok) {
+                            const errorData = await preprocessResponse.json();
+                            throw new Error(errorData.error || 'Preprocessing failed');
+                        }
+                        const preprocessData = await preprocessResponse.json();
+                        if (preprocessData.error) {
+                            throw new Error(preprocessData.error);
+                        }
+                        preprocessedPreview.src = preprocessData.preprocessed_image;
+                        preprocessedPreview.style.display = 'block';
+                        preprocessedLabel.style.display = 'block';
+
+                        const predictFormData = new FormData();
+                        predictFormData.append('file', resizedBlob, 'image.jpg');
+                        const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
+                            method: 'POST',
+                            body: predictFormData
+                        });
+                        if (!predictResponse.ok) {
+                            const errorData = await predictResponse.json();
+                            throw new Error(errorData.error || 'Prediction failed');
+                        }
+                        const data = await predictResponse.json();
+                        clearInterval(statusInterval);
+                        spinner.classList.remove('show');
+
+                        if (data.error) {
+                            alert('Error: ' + data.error);
+                            submitButton.classList.remove('hidden');
+                            return;
+                        }
+
+                        const levels = [
+                            "No DR",
+                            "Mild DR",
+                            "Moderate DR",
+                            "Severe DR",
+                            "Proliferative DR"
+                        ];
+                        predictionResult.textContent = `Diagnosis: ${levels[data.prediction]} (Level ${data.prediction})`;
+                        predictionResult.className = `result-card level-${data.prediction}`;
+                        predictionResult.classList.remove('hidden');
+
+                        llmAdvice.innerHTML = marked.parse(data.advice);
+                        downloadButton.classList.remove('hidden');
+
+                        downloadButton.onclick = async () => {
+                            try {
+                                const reportData = {
+                                    original_image: data.original_image,
+                                    preprocessed_image: data.preprocessed_image,
+                                    prediction: data.prediction,
+                                    advice: data.advice,
+                                    filename: data.filename
+                                };
+                                // Retry fetch up to 3 times
+                                let attempts = 0;
+                                const maxAttempts = 3;
+                                while (attempts < maxAttempts) {
+                                    attempts++;
+                                    try {
+                                        const controller = new AbortController();
+                                        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+                                        const response = await fetch(`${BACKEND_URL}/generate_report`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(reportData),
+                                            signal: controller.signal
+                                        });
+                                        clearTimeout(timeoutId);
+                                        if (!response.ok) {
+                                            const errorData = await response.json();
+                                            throw new Error(errorData.error || 'Failed to generate report');
+                                        }
+                                        const blob = await response.blob();
+                                        console.log('Attempt', attempts, 'Blob size:', blob.size);
+                                        if (blob.size < 1000) {
+                                            throw new Error('Received empty or invalid PDF file');
+                                        }
+                                        const url = window.URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = data.filename;
+                                        a.click();
+                                        window.URL.revokeObjectURL(url);
+                                        return; // Success, exit
+                                    } catch (error) {
+                                        if (attempts === maxAttempts) {
+                                            throw error; // Final attempt failed
+                                        }
+                                        console.log('Retry attempt', attempts + 1, 'after error:', error);
+                                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Download error:', error);
+                                alert('Could not download PDF: ' + (error.message || 'Network error'));
+                            }
+                        };
+                    } catch (error) {
+                        clearInterval(statusInterval);
+                        spinner.classList.remove('show');
+                        submitButton.classList.remove('hidden');
+                        alert('Analysis failed: ' + error.message);
+                    }
+                });
+            } catch (error) {
+                clearInterval(statusInterval);
+                spinner.classList.remove('show');
+                submitButton.classList.remove('hidden');
+                alert('Analysis failed: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
