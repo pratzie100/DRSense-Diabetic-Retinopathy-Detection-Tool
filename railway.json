@@ -8,7 +8,7 @@
             "pkgs": ["python39", "python39Packages.pip", "gcc"]
           },
           "install": {
-            "cmds": ["pip install --no-cache-dir -r requirements.txt"]
+            "cmds": ["pip install --no-cache-dir -r backend-requirements.txt"]
           },
           "build": {
             "cmds": []
