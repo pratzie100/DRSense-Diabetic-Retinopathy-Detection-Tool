@@ -1,0 +1,22 @@
+{
+    "build": {
+      "builder": "NIXPACKS",
+      "nixpacksPlan": {
+        "providers": ["python"],
+        "phases": {
+          "setup": {
+            "pkgs": ["python310", "pip"]
+          },
+          "install": {
+            "cmds": ["pip install -r requirements.txt"]
+          },
+          "build": {
+            "cmds": []
+          },
+          "start": {
+            "cmd": "gunicorn app:app --workers 1 --timeout 300"
+          }
+        }
+      }
+    }
+  }
