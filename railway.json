@@ -5,10 +5,10 @@
         "providers": ["python"],
         "phases": {
           "setup": {
-            "pkgs": ["python39", "python39Packages.pip", "gcc"]
+            "pkgs": ["python3", "python3-pip", "gcc"]
           },
           "install": {
-            "cmds": ["pip install --no-cache-dir -r backend-requirements.txt"]
+            "cmds": ["python3 -m pip install --no-cache-dir -r backend-requirements.txt"]
           },
           "build": {
             "cmds": []
