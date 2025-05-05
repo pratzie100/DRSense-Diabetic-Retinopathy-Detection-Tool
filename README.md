@@ -1,62 +1,28 @@
-<!-- # DRSense - Diabetic Retinopathy Detection Tool
-
-**DRSense** is a web-based tool for detecting diabetic retinopathy (DR) from fundus images using deep learning and large language model (LLM)-powered recommendations. Built with Flask, TensorFlow, and Groq, it leverages applied machine learning, deep learning, and transfer learning to provide healthcare professionals with immediate, actionable insights for DR diagnosis and management.
-
-- **Frontend**: Hosted on Netlify and Vercel (static `index.html`).
-- **Backend**: Hosted on Render (Flask API with TensorFlow model).
-- **Model**: DenseNet121-based classifier (`densenet_fundus_clahe_final.h5`) for DR severity classification.
-- **LLM**: Llama3 for generating hospital-grade recommendations, trained on 8 billion parameters.
-
-## Features
-- **Image Upload**: Drag-and-drop or select fundus images for analysis.
-- **Preprocessing**: Applies CLAHE and brightness/contrast adjustments to enhance image quality.
-- **Prediction**: Classifies DR into 5 levels (No DR, Mild, Moderate, Severe, Proliferative).
-- **Recommendations**: Provides concise, Markdown-formatted advice for healthcare professionals.
-- **Report Generation**: Downloads a PDF report with original/preprocessed images, diagnosis, and recommendations.
-- **Responsive UI**: Built with Tailwind CSS and Bootstrap for a modern, mobile-friendly interface.
-
-## Tech Stack
-- **Frontend**: HTML, CSS, JavaScript, Tailwind CSS, Bootstrap
-- **Backend**: Flask, TensorFlow, OpenCV, Groq API
-- **Deployment**: Netlify (frontend), Vercel (frontend), Render (backend)
-- **Dependencies**: See `requirements.txt` for Python packages
-- **Model**: DenseNet121 (`densenet_fundus_clahe_final.h5`, 86.1 MB)
-
-## Dataset Details
-- **Source**: [APTOS 2019 Blindness Detection Dataset](https://www.kaggle.com/c/aptos2019-blindness-detection) from Kaggle.
-- **Size**: 3,662 high-resolution eye fundus images.
-- **Purpose**: Used to train and evaluate the deep learning model for diabetic retinopathy severity classification.
-
-## Model and Performance
-- **Architecture**: Convolutional Neural Network (CNN) based on DenseNet121, pre-trained on ImageNet and fine-tuned for DR classification.
-- **Task**: 5-class severity classification (No DR, Mild, Moderate, Severe, Proliferative).
-- **Performance**: Achieved an training accuracy of **98%** on training dataset (3295 images) and validation accuracy of **83%** on testing dataset (367 images).
-
-## Image Preprocessing
-- **Method**: Contrast Limited Adaptive Histogram Equalization (CLAHE).
-- **Process**:
-  - CLAHE enhances the contrast of local regions in fundus images.
-  - Improves visibility of critical features like blood vessels and lesions without over-amplifying noise.
-- **Benefits**:
-  - Prepares images for more accurate machine learning and deep learning analysis.
-  - Enhances model performance by highlighting clinically relevant structures.
-
-## Prerequisites
-- Python 3.8+
-- Git
-- Groq API key
-- Accounts for [Netlify](https://netlify.com), [Vercel](https://vercel.com), and [Render](https://render.com) -->
-
 # DRSense - Diabetic Retinopathy Detection Tool
 
 **DRSense** is a web-based tool for detecting diabetic retinopathy (DR) from fundus images using deep learning and large language model (LLM)-powered recommendations. Built with Flask, TensorFlow, and Groq, it leverages applied machine learning, deep learning, and transfer learning to provide healthcare professionals with immediate, actionable insights for DR diagnosis and management.
 
-> **Note**: Backend Deployment to Render is currently pending. This project is under active development.
-
-- **Frontend**: Static `index.html` (Netlify/Vercel).
-- **Backend**: Flask API with TensorFlow model (planned for Render).
+- **Frontend**: Static `index.html` hosted on Netlify.
+- **Backend**: Flask API with TensorFlow model hosted on Render.
 - **Model**: DenseNet121-based classifier (`densenet_fundus_clahe_final.h5`) for DR severity classification.
 - **LLM**: Llama3 for generating hospital-grade recommendations, trained on 8 billion parameters.
+
+---
+
+## Demo Links
+
+- **Frontend**: [https://drsense-pratyush-kargeti.netlify.app/](https://drsense-pratyush-kargeti.netlify.app/)  
+  Access the user interface to upload fundus images and view results.
+- **Backend**: [https://drsense-diabetic-retinopathy-detection.onrender.com/](https://drsense-diabetic-retinopathy-detection.onrender.com/)  
+  API endpoint for image processing, prediction, and recommendations.
+
+---
+
+## Testing the Model
+
+To test the DRSense tool, you can use sample fundus images provided in the GitHub repository.
+
+> **Note**: Ensure the input images are high-resolution fundus photographs for accurate results. The sample images are representative of the APTOS 2019 dataset used for training.
 
 ---
 
@@ -94,8 +60,8 @@ Below are sample screenshots of the tool in action:
 ## Tech Stack
 - **Frontend**: HTML, CSS, JavaScript, Tailwind CSS, Bootstrap
 - **Backend**: Flask, TensorFlow, OpenCV, Groq API
-- **Deployment**: Netlify/Vercel (frontend), Render (backend) - *Coming soon*
-- **Dependencies**: See `requirements.txt` for Python packages
+- **Deployment**: Netlify (frontend), Render (backend)
+- **Dependencies**: See `backend-requirements.txt` for Python packages
 - **Model**: DenseNet121 (`densenet_fundus_clahe_final.h5`, 86.1 MB)
 
 ---
@@ -131,4 +97,6 @@ Below are sample screenshots of the tool in action:
 - Python 3.8+
 - Git
 - Groq API key
-- Accounts for [Netlify](https://netlify.com), [Vercel](https://vercel.com), and [Render](https://render.com) *(for future deployment)*
+- Accounts for [Netlify](https://netlify.com) and [Render](https://render.com)
+
+---
