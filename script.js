@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hljs.highlightAll();
 });
 
-// const BACKEND_URL = ''; // Update to BACKEND URL after deployment
+const BACKEND_URL = 'https://drsense-diabetic-retinopathy-detection.onrender.com/'; // Updated to BACKEND URL after deployment
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const preview = document.getElementById('preview');
@@ -90,8 +90,8 @@ async function analyzeImage(file) {
         // Step 1: Preprocess image
         const preprocessFormData = new FormData();
         preprocessFormData.append('file', file);
-        const preprocessResponse = await fetch('/preprocess', {
-        //const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
+        // const preprocessResponse = await fetch('/preprocess', {
+        const preprocessResponse = await fetch(`${BACKEND_URL}/preprocess`, {
             method: 'POST',
             body: preprocessFormData
         });
@@ -106,8 +106,8 @@ async function analyzeImage(file) {
         // Step 2: Predict
         const predictFormData = new FormData();
         predictFormData.append('file', file);
-        const predictResponse = await fetch('/predict', {
-        //const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
+        //const predictResponse = await fetch('/predict', {
+        const predictResponse = await fetch(`${BACKEND_URL}/predict`, {
             method: 'POST',
             body: predictFormData
         });
@@ -126,8 +126,8 @@ async function analyzeImage(file) {
         let lastRenderTime = 0;
         const renderInterval = 100; // Render every 100ms
         try {
-            const streamResponse = await fetch('/stream_advice', {
-            //const streamResponse = await fetch(`${BACKEND_URL}/stream_advice`, {
+            //const streamResponse = await fetch('/stream_advice', {
+            const streamResponse = await fetch(`${BACKEND_URL}/stream_advice`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prediction: data.prediction })
@@ -225,8 +225,8 @@ async function analyzeImage(file) {
                     try {
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), 60000);
-                        const response = await fetch('/generate_report', {
-                        //const response = await fetch(`${BACKEND_URL}/generate_report`, {
+                        //const response = await fetch('/generate_report', {
+                        const response = await fetch(`${BACKEND_URL}/generate_report`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(reportData),
