@@ -9,12 +9,10 @@
 
 ---
 
-## Demo Links
+## Deployment
 
-- **Frontend**: [https://drsense-pratyush-kargeti.netlify.app/](https://drsense-pratyush-kargeti.netlify.app/)  
-  Access the user interface to upload fundus images and view results.
-- **Backend**: [https://drsense-diabetic-retinopathy-detection.onrender.com/](https://drsense-diabetic-retinopathy-detection.onrender.com/)  
-  API endpoint for image processing, prediction, and recommendations.
+- **Frontend**: Hosted on Netlify ([Live Demo](https://drsense-pratyush-kargeti.netlify.app/)).
+- **Backend**: Hosted on ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)).
 
 ---
 
