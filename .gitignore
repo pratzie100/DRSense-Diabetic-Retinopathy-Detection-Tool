@@ -3,5 +3,5 @@
 X_train_preprocessed.npy
 X_val_preprocessed.npy
 train_images/
-results/
-research_work/
+# results/
+# research_work/
