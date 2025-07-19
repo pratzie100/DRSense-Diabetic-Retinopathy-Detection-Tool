@@ -12,13 +12,13 @@
 ## Deployment
 
 - **Frontend**: Hosted on Netlify ([Live Demo](https://drsense-pratyush-kargeti.netlify.app/)).
-- **Backend**: Hosted on ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)). Click on this link to wake up the backend server. It will return the message "DRSense API is up and running!!". Once you see this message. Now go to frontend website demo link (hosted on netlify).
+- **Backend**: Hosted on ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)). 
 
 ---
 
 ## Testing the Model
 
-To test the DRSense tool, you can use sample fundus images provided in the GitHub repository.
+To test the DRSense tool, Click on this Backend ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)) link to wake up the backend server. It will return the message "DRSense API is up and running!!" within a minute. Once you see this message, it means backend is up. Now you can go to frontend website demo link (hosted on netlify) to test the app. You can use sample fundus images provided in the GitHub repository.
 
 > **Note**: Ensure the input images are high-resolution fundus photographs for accurate results. The sample images are representative of the APTOS 2019 dataset used for training.
 
