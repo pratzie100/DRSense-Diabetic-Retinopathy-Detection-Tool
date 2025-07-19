@@ -12,7 +12,7 @@
 ## Deployment
 
 - **Frontend**: Hosted on Netlify ([Live Demo](https://drsense-pratyush-kargeti.netlify.app/)).
-- **Backend**: Hosted on ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)).
+- **Backend**: Hosted on ([Render](https://drsense-diabetic-retinopathy-detection.onrender.com/)). Click on this link to wake up the backend server. It will return the message "DRSense API is up and running!!". Once you see this message. Now go to frontend website demo link (hosted on netlify).
 
 ---
 
